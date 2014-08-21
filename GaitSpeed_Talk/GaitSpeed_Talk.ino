@@ -24,8 +24,8 @@ SoftwareSerial WiFlySerial(5,4); // RX, TX
 int sensorPin_start = A0;    // select the input pin for the start detection
 int sensorPin_stop = A1;    // select the input pin for the stop detection
 int ledPin = 8;      // select the pin for the LED
-int buzzerPin = 11;
 int buttonPin = 6 ;  //select the pin for the push button
+int buzzerPin = 11;
 int sensorValue_start = 0;  // variable to store the value coming from the start sensor
 int sensorValue_stop = 0;  // variable to store the value coming from the stop sensor
 boolean start_flag = false;   // flag for start
@@ -48,7 +48,8 @@ boolean flag_checked = false;
 boolean flag_second_check = false;
 int index = 0;
 
-int threshold_offset = 55;
+int threshold_offset = 60;
+int threshold_offset_return = 35;
 int detect_threshold_start = 0;
 int detect_threshold_stop = 0;
 boolean start_ind = true;
@@ -178,9 +179,9 @@ void setup() {
   // declare the ledPin as an OUTPUT:
   pinMode(ledPin, OUTPUT);
   pinMode(buttonPin,INPUT);
-  pinMode(buzzerPin,OUTPUT);
-  digitalWrite(buzzerPin, 0);
   digitalWrite(ledPin,LOW);
+  pinMode(buzzerPin,OUTPUT);
+  digitalWrite(buzzerPin,0);
   sensorValue_start = analogRead(sensorPin_start);
   sensorValue_stop = analogRead(sensorPin_stop); 
   for (int i = 0;i<20;i++)
@@ -189,7 +190,7 @@ void setup() {
     sensorValue_stop =( sensorValue_stop + analogRead(sensorPin_stop))/2;
   }
   detect_threshold_start = sensorValue_start + threshold_offset;
-  detect_threshold_stop = sensorValue_stop + threshold_offset;
+  detect_threshold_stop = sensorValue_stop + threshold_offset_return;
   
   Serial.print(detect_threshold_start);
   Serial.print(',');
@@ -305,21 +306,21 @@ void loop() {
             Serial.println("Loop1");
             time_stop = millis();
             digitalWrite(buzzerPin, HIGH);
-            delay(500);
-            digitalWrite(buzzerPin, 0);
+          delay(500);
+          digitalWrite(buzzerPin,0);
             calculate_speed(time_stop - time_start);
             flag_start_done = true;
             start_flag = false;
             while(!checkButton());
-            delay(1000);
+            delay(2000);
           }
         } else {
           if (check_value(start_ind)) {
             Serial.println("Loop2");
             time_start = millis();
-            digitalWrite(buzzerPin, HIGH);
-            delay(500);
-            digitalWrite(buzzerPin, 0);
+             digitalWrite(buzzerPin, HIGH);
+          delay(500);
+          digitalWrite(buzzerPin,0);
             start_flag = true;
             delay(1000);
           }
@@ -330,10 +331,11 @@ void loop() {
         if (check_value(start_ind)) {
           Serial.println("Loop3");
           time_stop = millis();
-           digitalWrite(buzzerPin, HIGH);
-            delay(500);
-            digitalWrite(buzzerPin, 0);
+          digitalWrite(buzzerPin, HIGH);
+          delay(500);
+          digitalWrite(buzzerPin,0);
           calculate_speed_2(time_stop - time_start);
+          
           flag_checked = false;
           flag_second_check = false;
           flag_start_done = false;
@@ -344,9 +346,9 @@ void loop() {
         if (check_value(stop_ind)) {
           Serial.println("Loop4");
           time_start = millis();
-          digitalWrite(buzzerPin, HIGH);
-            delay(500);
-            digitalWrite(buzzerPin, 0);
+           digitalWrite(buzzerPin, HIGH);
+          delay(500);
+          digitalWrite(buzzerPin,0);
           digitalWrite(ledPin, LOW);
           start_flag = true;
           delay(1000);
